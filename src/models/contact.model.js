@@ -9,26 +9,26 @@ const getAllContacts = () =>
             .catch(err => reject(err))
     })
 
-const createContact = (fullName, email, phone, company, job_title, notes) =>
+const createContact = (fullname, email, phone, company, job_title, notes) =>
     new Promise((resolve, reject) => {
         const sql = `
             INSERT INTO contacts (contact_id, fullname, email, phone, company, job_title, notes)
             VALUES ($1, $2, $3, $4, $5, $6, $7)`
-        const values = [uuidv4(), fullName, email, phone, company, job_title, notes]
+        const values = [uuidv4(), fullname, email, phone, company, job_title, notes]
 
         pool.query(sql, values)
             .then(res => resolve(res))
             .catch(err => reject(err))
     })
 
-const updateContact = (contactId, fullName, email, phone, company, job_title, notes) =>
+const updateContact = (contactId, fullname, email, phone, company, job_title, notes) =>
     new Promise((resolve, reject) => {
         const sql = `
             UPDATE contacts
             SET fullname = $1, email = $2, phone = $3, company = $4, job_title = $5, notes = $6
             WHERE contact_id = $7
         `
-        const values = [fullName, email, phone, company, job_title, notes, contactId]
+        const values = [fullname, email, phone, company, job_title, notes, contactId]
 
         pool.query(sql, values)
             .then(res => resolve(res))

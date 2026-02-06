@@ -32,9 +32,9 @@ const getAllContacts = async (req, res) => {
 const createContact = async (req, res) => {
     try {
 
-        const {fullName, email, phone, company, job_title, notes} = req.body
+        const {fullname, email, phone, company, job_title, notes} = req.body
 
-        if (!fullName || !email || !phone || !company || !job_title || !notes ) {
+        if (!fullname || !email || !phone || !company || !job_title || !notes ) {
             return errorHandler(
                 res, 
                 false, 
@@ -42,7 +42,7 @@ const createContact = async (req, res) => {
                 "Semua field wajib diisi")}        
 
         const createdContact = await userModel.createContact(
-            fullName,  
+            fullname,  
             email,
             phone,
             company,
@@ -63,7 +63,7 @@ const createContact = async (req, res) => {
             true, 
             201, 
             "Course berhasil dibuat", 
-            {fullName, email, phone, company, job_title, notes})
+            {fullname, email, phone, company, job_title, notes})
 
     } catch (error) {
 
@@ -79,9 +79,9 @@ const updateContact = async (req, res) => {
     try {
         const {contactId} = req.params
 
-        const {fullName, email, phone, company, job_title, notes} = req.body 
+        const {fullname, email, phone, company, job_title, notes} = req.body 
 
-        if (!fullName || !email || !phone || !company || !job_title || !notes ) {
+        if (!fullname || !email || !phone || !company || !job_title || !notes ) {
 
             return errorHandler(
                 res, 
@@ -89,7 +89,7 @@ const updateContact = async (req, res) => {
                 400, 
                 "Semua field wajib diisi")}
 
-        const updatedContact = await userModel.updateContact(contactId, fullName, email, phone, company, job_title, notes)
+        const updatedContact = await userModel.updateContact(contactId, fullname, email, phone, company, job_title, notes)
 
         if (updatedContact.rowCount === 0) {
             return errorHandler(
@@ -104,7 +104,7 @@ const updateContact = async (req, res) => {
             true, 
             200, 
             "Contact berhasil diperbarui", 
-            {contactId, fullName, email, phone, company, job_title, notes})        
+            {contactId, fullname, email, phone, company, job_title, notes})        
         
     } catch (error) {
 
