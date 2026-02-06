@@ -63,7 +63,7 @@ const createContact = async (req, res) => {
             true, 
             201, 
             "Course berhasil dibuat", 
-            createdContact)
+            {fullName, email, phone, company, job_title, notes})
 
     } catch (error) {
 
@@ -104,7 +104,7 @@ const updateContact = async (req, res) => {
             true, 
             200, 
             "Contact berhasil diperbarui", 
-            updatedContact)        
+            {contactId, fullName, email, phone, company, job_title, notes})        
         
     } catch (error) {
 
@@ -149,7 +149,7 @@ const deleteContact = async (req, res) => {
             true, 
             200, 
             "Contact berhasil dihapus", 
-            deletedContact)
+            {contact})
             
     } catch (error) {
 
