@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model contacts {
+  contact_id String    @id(map: "contact_pkey") @db.VarChar
+  fullname   String    @db.VarChar
+  email      String    @db.VarChar
+  phone      String    @db.VarChar
+  company    String    @db.VarChar
+  job_title  String    @db.VarChar
+  notes      String    @db.VarChar
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  user_id    String    @db.VarChar
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model users {
+  user_id            String    @id @unique @db.VarChar
+  fullname           String    @db.VarChar
+  email              String    @db.VarChar
+  password           String    @db.VarChar
+  is_verified        Boolean?  @default(false)
+  verification_token String?   @db.VarChar
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  role               String?   @db.VarChar
+}

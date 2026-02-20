@@ -10,10 +10,10 @@ const {
 
 const {verifyToken} = require('../middlewares/auth.middleware')
 
-router.get('/contacts', verifyToken, getAllContacts) 
-router.post('/contacts', verifyToken, createContact)
-router.put('/contacts/:contactId', verifyToken, updateContact)
-router.delete('/contacts/:contactId', verifyToken, deleteContact)
-router.get('/contacts/:contactId', verifyToken, getContactById)
+router.get('/contact', verifyToken, getAllContacts) 
+router.post('/contact', verifyToken, createContact)
+router.patch('/contact/:contactId', verifyToken, updateContact)
+router.delete('/contact/:contactId', verifyToken, deleteContact)
+router.get('/contact/:contactId', verifyToken, getContactById)
 
 module.exports = router

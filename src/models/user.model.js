@@ -1,64 +1,91 @@
-const pool = require('../database/connection')
+const prisma = require('../database/connection')
 const { v4: uuidv4 } = require('uuid')
 
 const getAllUsers = () =>
-    new Promise((resolve, reject) => {
-        const sql = 'SELECT user_id, fullname, email, gender, country, phone FROM users'
-        pool.query(sql)
-            .then(res => resolve(res.rows))
-            .catch(err => reject(err))
+    prisma.users.findMany({
+        select: {
+            user_id: true,
+            fullname: true,
+            email: true,
+        }
     })
 
-const createUser = (fullName, email, gender, country, phone, password) =>
-    new Promise((resolve, reject) => {
-        const sql = `
-            INSERT INTO users (user_id, fullname, email, gender, country, phone, password)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-
-        `
-        const values = [uuidv4(), fullName, email, gender, country, phone, password]
-
-        pool.query(sql, values)
-            .then(res => resolve(res))
-            .catch(err => reject(err))
+const createUser = (fullName, email, password, role = 'user', verificationToken) =>
+    prisma.users.create({
+        data: {
+            user_id: uuidv4(),
+            fullname: fullName,
+            email,
+            password,
+            role,
+            verification_token: verificationToken,
+        },
+        select: {
+            user_id: true,
+            fullname: true,
+            email: true,
+            role: true,
+        }
     })
 
-const updateUser = (fullName, email, gender, country, phone, password, userId) =>
-    new Promise((resolve, reject) => {
-        const sql = `
-            UPDATE users
-            SET fullname = $1, email = $2, gender = $3, country = $4, phone = $5, password = $6
-            WHERE user_id = $7
-        `
-        const values = [fullName, email, gender, country, phone, password, userId]
-
-        pool.query(sql, values)
-            .then(res => resolve(res))
-            .catch(err => reject(err))
+const updateUser = (userId, fullName, email, password) =>
+    prisma.users.update({
+        where: { user_id: userId },
+        data: {
+            fullname: fullName,
+            email,
+            password,
+        },
+        select: {
+            user_id: true,
+            fullname: true,
+            email: true,
+        }
     })
 
 const deleteUser = (userId) =>
-    new Promise((resolve, reject) => {
-        const sql = `DELETE FROM users WHERE user_id = $1`
-        pool.query(sql, [userId])
-            .then(res => resolve(res))
-            .catch(err => reject(err))
+    prisma.users.delete({
+        where: { user_id: userId },
+        select: {
+            user_id: true,
+            fullname: true,
+            email: true,
+            role: true,
+        }
     })
 
 const getUserById = (userId) =>
-    new Promise((resolve, reject) => {
-        const sql = `SELECT user_id, fullname, email, gender, country, phone FROM users WHERE user_id = $1`
-        pool.query(sql, [userId])
-            .then(res => resolve(res.rows[0]))
-            .catch(err => reject(err))
+    prisma.users.findUnique({
+        where: { user_id: userId },
+        select: {
+            user_id: true,
+            fullname: true,
+            email: true,
+        }
     })
 
 const getUserByEmail = (email) =>
-    new Promise((resolve, reject) => {
-        const sql = `SELECT * FROM users WHERE email = $1`
-        pool.query(sql, [email])
-            .then(res => resolve(res.rows))
-            .catch(err => reject(err))
+    prisma.users.findMany({
+        where: { email }
+    })
+
+const getUserByVerificationToken = (token) =>
+    prisma.users.findMany({
+        where: { verification_token: token },
+        select: {
+            user_id: true,
+            fullname: true,
+            email: true,
+        }
+    })
+
+const verifyUserEmail = (token) =>
+    prisma.users.updateMany({
+        where: { verification_token: token },
+        data: {
+            is_verified: true,
+            verification_token: null,
+        }
     })
 
 module.exports = {
@@ -67,5 +94,7 @@ module.exports = {
     updateUser,
     deleteUser,
     getUserById,
-    getUserByEmail
+    getUserByEmail,
+    getUserByVerificationToken,
+    verifyUserEmail
 }

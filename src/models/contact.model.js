@@ -1,54 +1,107 @@
-const pool = require('../database/connection')
+const prisma = require('../database/connection')
 const { v4: uuidv4 } = require('uuid')
 
-const getAllContacts = () =>
-    new Promise((resolve, reject) => {
-        const sql = 'SELECT contact_id, fullname, email, phone, company, job_title, notes FROM contacts'
-        pool.query(sql)
-            .then(res => resolve(res.rows))
-            .catch(err => reject(err))
+const getAllContacts = (userId, filters = {}) => {
+    const where = {
+        user_id: userId,
+        ...(filters.search && {
+            OR: [
+                { fullname: { contains: filters.search, mode: 'insensitive' } },
+                { email:    { contains: filters.search, mode: 'insensitive' } },
+                { phone:    { contains: filters.search, mode: 'insensitive' } },
+            ]
+        })
+    }
+
+    return prisma.contacts.findMany({
+        where,
+        select: {
+            contact_id: true,
+            fullname:   true,
+            email:      true,
+            phone:      true,
+            company:    true,
+            job_title:  true,
+            notes:      true,
+            created_at: true,
+        },
+        orderBy: {
+            fullname: filters.sortOrder === 'desc' ? 'desc' : 'asc',
+        }
     })
+}
 
-const createContact = (fullname, email, phone, company, job_title, notes) =>
-    new Promise((resolve, reject) => {
-        const sql = `
-            INSERT INTO contacts (contact_id, fullname, email, phone, company, job_title, notes)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)`
-        const values = [uuidv4(), fullname, email, phone, company, job_title, notes]
-
-        pool.query(sql, values)
-            .then(res => resolve(res))
-            .catch(err => reject(err))
+const createContact = (userId, fullname, email, phone, company, job_title, notes) =>
+    prisma.contacts.create({
+        data: {
+            contact_id: uuidv4(),
+            user_id: userId,
+            fullname,
+            email,
+            phone,
+            company,
+            job_title,
+            notes,
+        },
+        select: {
+            contact_id: true,
+            fullname:   true,
+            email:      true,
+            phone:      true,
+            company:    true,
+            job_title:  true,
+            notes:      true,
+            created_at: true,
+        }
     })
 
 const updateContact = (contactId, fullname, email, phone, company, job_title, notes) =>
-    new Promise((resolve, reject) => {
-        const sql = `
-            UPDATE contacts
-            SET fullname = $1, email = $2, phone = $3, company = $4, job_title = $5, notes = $6
-            WHERE contact_id = $7
-        `
-        const values = [fullname, email, phone, company, job_title, notes, contactId]
-
-        pool.query(sql, values)
-            .then(res => resolve(res))
-            .catch(err => reject(err))
+    prisma.contacts.update({
+        where: { contact_id: contactId },
+        data: {
+            fullname,
+            email,
+            phone,
+            company,
+            job_title,
+            notes,
+        },
+        select: {
+            fullname:  true,
+            email:     true,
+            phone:     true,
+            company:   true,
+            job_title: true,
+            notes:     true,
+        }
     })
 
 const deleteContact = (contactId) =>
-    new Promise((resolve, reject) => {
-        const sql = `DELETE FROM contacts WHERE contact_id = $1`
-        pool.query(sql, [contactId])
-            .then(res => resolve(res.rows))
-            .catch(err => reject(err))
+    prisma.contacts.delete({
+        where: { contact_id: contactId },
+        select: {
+            contact_id: true,
+            fullname:   true,
+            email:      true,
+            phone:      true,
+            company:    true,
+            job_title:  true,
+            notes:      true,
+        }
     })
 
 const getContactById = (contactId) =>
-    new Promise((resolve, reject) => {
-        const sql = `SELECT contact_id, fullname, email, phone, company, job_title, notes FROM contacts WHERE contact_id = $1`
-        pool.query(sql, [contactId])
-            .then(res => resolve(res.rows[0]))
-            .catch(err => reject(err))
+    prisma.contacts.findUnique({
+        where: { contact_id: contactId },
+        select: {
+            contact_id: true,
+            fullname:   true,
+            email:      true,
+            phone:      true,
+            company:    true,
+            job_title:  true,
+            notes:      true,
+        }
     })
 
 module.exports = {
@@ -56,6 +109,5 @@ module.exports = {
     createContact,
     updateContact,
     deleteContact,
-    getContactById
-
+    getContactById,
 }
